@@ -16,7 +16,8 @@ model User {
   name    String?
   username String?
   photo   String?
+  provider String?
   created_on String
-  lastLogin String
+  lastLogin String 
   loginCount String @default("0")
 }

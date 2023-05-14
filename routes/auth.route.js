@@ -21,8 +21,8 @@ router.post(
 router.get(
   "/google",
   passport.authenticate("google", {
-    scope: ["profile"],
-    // access_type: "offline",
+    scope: ["profile", "email"],
+    access_type: "offline",
   })
 );
 

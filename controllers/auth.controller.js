@@ -47,8 +47,8 @@ const addUser = async (profile) => {
     {
       where: { id: profile.id },
       data: {
-        id: profile.id,
-        username: profile.username,
+        // id: profile.id,
+        // username: profile.username,
         name: profile.displayName || "John Doe",
         photo: profile.photos[0].value || "",
         email: Array.isArray(profile.emails)
@@ -72,10 +72,17 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "https://salva.vercel.app/auth/google/callback",
+      callbackURL: "http://localhost:8080/auth/google/callback",
     },
     function (accessToken, refreshToken, profile, cb) {
-      addUser(profile, cb);
+      // console.log(profile);
+      addUser(profile, cb).then((err, resp) => {
+        if (err) {
+          console.log("hi");
+        } else {
+          console.log("Hello");
+        }
+      });
     }
   )
 );
