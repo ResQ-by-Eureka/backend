@@ -37,7 +37,7 @@ router.get(
     const token = jwt.sign({ id: req.user.id }, process.env.JWT_SECRET, {
       expiresIn: "1d",
     });
-    res.redirect(`https://salva-eureka.netlify.app/auth/${token}`);
+    res.redirect(`https://salva-eureka.netlify.app/auth/?token=${token}`);
   }
 );
 
