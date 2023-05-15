@@ -1,5 +1,5 @@
 const passport = require("passport");
-const { registerUser } = require("../controllers/auth.controller");
+require("../auth/google.auth.js");
 const router = require("express").Router();
 
 function ensureAuthenticated(req, res, next) {
