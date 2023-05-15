@@ -33,7 +33,7 @@ router.get(
     // console.log(req.user);
     // console.log(req.session)
     req.session.user_id = req.user.id;
-    res.send({ status: 200, message: "Success" });
+    res.redirect("https://salva-eureka.netlify.app/")
   }
 );
 
