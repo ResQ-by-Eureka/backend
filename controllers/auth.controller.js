@@ -12,60 +12,65 @@ passport.serializeUser((user, done) => {
   done(null, user.id);
 });
 
-const prismFind = async (id, done) => {
-  await prisma.user.find({
-    where: id,
+const prismaFind = async (id) => {
+  await prisma.user.findUnique({
+    where: { id: id },
   });
 };
 
 passport.deserializeUser((id, done) => {
-  prismaFind({ id: id }).then((err, doc) => {
-    done(null, doc);
-  });
+  prisma.user
+    .findUnique({
+      where: { id },
+    })
+    .then((doc) => {
+      // console.log(err);
+      done(null, doc);
+    });
   // myDatabase.findOne({ _id: new ObjectID(id) }, (err, doc) => {
   //   done(null, doc);
   // });
 });
 
-passport.use(
-  new LocalStrategy((username, password, done) => {
-    prismaFind({ username }).then((err, user) => {
-      console.log(`User ${username} attempted to log in.`);
-      if (err) return done(err);
-      if (!user) return done(null, false);
-      if (!password == user.password) return done(null, false);
-      if (!bcrypt.compareSync(password, user.password)) {
-        return done(null, false);
-      }
-      return done(null, user);
-    });
-  })
-);
+// passport.use(
+//   new LocalStrategy((username, password, done) => {
+//     prismaFind({ username }).then((err, user) => {
+//       console.log(`User ${username} attempted to log in.`);
+//       if (err) return done(err);
+//       if (!user) return done(null, false);
+//       if (!password == user.password) return done(null, false);
+//       if (!bcrypt.compareSync(password, user.password)) {
+//         return done(null, false);
+//       }
+//       return done(null, user);
+//     });
+//   })
+// );
 
-const addUser = async (profile) => {
-  await prisma.user.update(
-    {
-      where: { id: profile.id },
-      data: {
-        // id: profile.id,
-        // username: profile.username,
-        name: profile.displayName || "John Doe",
-        photo: profile.photos[0].value || "",
-        email: Array.isArray(profile.emails)
-          ? profile.emails[0].value
-          : "No public email",
-        created_on: new Date(),
-        provider: profile.provider || "",
-        lastLogin: new Date(),
-        loginCount: 1,
-      },
-    },
-    { upsert: true, new: true },
-    (err, doc) => {
-      return cb(null, doc.value);
-    }
-  );
-};
+// const addUser = async (profile) => {
+//   await prisma.user.create(
+//     {
+//       // where: { id: profile.id },
+//       data: {
+//         id: profile.id,
+//         // username: profile.username,
+//         name: profile.displayName || "John Doe",
+//         photo: profile.photos[0].value || "",
+//         email: Array.isArray(profile.emails)
+//           ? profile.emails[0].value
+//           : "No public email",
+//         // created_on: new Date(),
+//         provider: profile.provider || "",
+//         // lastLogin: new Date(),
+//         // loginCount: 1,
+//       },
+//     },
+//     { upsert: true, new: true },
+//     (err, doc) => {
+//       return cb(null, doc.value);
+//     }
+//   );
+// };
 
 passport.use(
   new GoogleStrategy(
@@ -75,14 +80,46 @@ passport.use(
       callbackURL: "http://localhost:8080/auth/google/callback",
     },
     function (accessToken, refreshToken, profile, cb) {
-      // console.log(profile);
-      addUser(profile, cb).then((err, resp) => {
-        if (err) {
-          console.log("hi");
-        } else {
-          console.log("Hello");
-        }
-      });
+      prisma.user
+        .findUnique({
+          where: { id: profile.id },
+        })
+        .then((resp) => {
+          if (resp) {
+            prisma.user
+              .update({
+                where: { id: profile.id },
+                data: {
+                  name: profile.displayName || "John Doe",
+                  photo: profile.photos[0].value || "",
+                  provider: profile.provider || "",
+                  loginCount: { increment: 1 },
+                  lastLogin: new Date(),
+                },
+              })
+              .then((user) => {
+                cb(null, user);
+              });
+          } else {
+            prisma.user
+              .create({
+                // where: { id: profile.id },
+                data: {
+                  id: profile.id,
+                  // username: profile.username,
+                  name: profile.displayName || "John Doe",
+                  photo: profile.photos[0].value || "",
+                  email: Array.isArray(profile.emails)
+                    ? profile.emails[0].value
+                    : "No public email",
+                  provider: profile.provider || "",
+                },
+              })
+              .then((user) => {
+                cb(null, user);
+              });
+          }
+        });
     }
   )
 );
@@ -115,5 +152,29 @@ const registerUser = async (req, res, next) => {
       }
     });
 };
+
+// const loginUser = () => {
+//   passport.use(
+//     new GoogleStrategy(
+//       {
+//         clientID: process.env.GOOGLE_CLIENT_ID,
+//         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+//         callbackURL: "http://localhost:8080/auth/google/callback",
+//       },
+//       () => {
+//         prisma.user.update({
+//           where: { id: profile.id },
+//           data: {
+//             name: profile.displayName || "John Doe",
+//             photo: profile.photos[0].value || "",
+//             provider: profile.provider || "",
+//             loginCount: { increment: 1 },
+//             last_login: new Date().getDate(),
+//           },
+//         });
+//       }
+//     )
+//   );
+// };
 
 module.exports = { registerUser };

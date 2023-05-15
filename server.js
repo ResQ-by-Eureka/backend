@@ -8,7 +8,6 @@ const authRouter = require("./routes/auth.route");
 const PORT = process.env.PORT || 5000;
 
 app.use(cors());
-app.use("/auth", authRouter);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -25,6 +24,8 @@ app.use(
 
 app.use(passport.initialize());
 app.use(passport.session());
+
+app.use("/auth", authRouter);
 
 app.get("/", (req, res) => {
   res.status(200).send(`Welcome to Salva`);

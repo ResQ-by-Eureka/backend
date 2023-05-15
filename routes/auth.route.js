@@ -9,14 +9,14 @@ function ensureAuthenticated(req, res, next) {
   res.send({ status: 401, message: "Unauthorized" });
 }
 
-router.post(
-  "/",
-  registerUser,
-  passport.authenticate("local", { failureRedirect: "/" }),
-  (req, res, next) => {
-    res.send({ status: 200, message: "Success" });
-  }
-);
+// router.post(
+//   "/",
+//   registerUser,
+//   passport.authenticate("local", { failureRedirect: "/" }),
+//   (req, res, next) => {
+//     res.send({ status: 200, message: "Success" });
+//   }
+// );
 
 router.get(
   "/google",
@@ -30,22 +30,24 @@ router.get(
   "/google/callback",
   passport.authenticate("google", { failureRedirect: "/" }),
   (req, res) => {
+    // console.log(req.user);
+    // console.log(req.session)
     req.session.user_id = req.user.id;
     res.send({ status: 200, message: "Success" });
   }
 );
 
-router.get("/profile", ensureAuthenticated, (req, res) => {
-  res.send({ status: 200, message: "Success", username: req.user.username });
-});
+// router.get("/profile", ensureAuthenticated, (req, res) => {
+//   res.send({ status: 200, message: "Success", username: req.user.username });
+// });
 
-router.post(
-  "/login",
-  passport.authenticate("local", { failureRedirect: "/" }),
-  (req, res) => {
-    res.send({ status: 200, message: "Success" });
-  }
-);
+// router.post(
+//   "/login",
+//   passport.authenticate("local", { failureRedirect: "/" }),
+//   (req, res) => {
+//     res.send({ status: 200, message: "Success" });
+//   }
+// );
 
 router.get("/logout", (req, res) => {
   req.logout();
