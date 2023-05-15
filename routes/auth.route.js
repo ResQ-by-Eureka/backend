@@ -1,5 +1,6 @@
 const passport = require("passport");
 require("../auth/google.auth.js");
+const jwt = require("jsonwebtoken");
 const router = require("express").Router();
 
 function ensureAuthenticated(req, res, next) {
@@ -33,7 +34,10 @@ router.get(
     // console.log(req.user);
     // console.log(req.session)
     req.session.user_id = req.user.id;
-    res.redirect("https://salva-eureka.netlify.app/")
+    const token = jwt.sign({ id: req.user.id }, process.env.JWT_SECRET, {
+      expiresIn: "1d",
+    });
+    res.redirect(`https://salva-eureka.netlify.app/auth/${token}`);
   }
 );
 
