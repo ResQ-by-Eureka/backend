@@ -38,7 +38,8 @@ router.get(
       expiresIn: "1d",
     });
     // res.redirect(`http://localhost:3000/auth/?token=${token}`);
-    res.redirect(`https://salva-eureka.netlify.app/auth/?token=${token}`);
+    // res.redirect(`https://salva-eureka.netlify.app/auth/?token=${token}`);
+    res.redirect(`https://salva-eureka.vercel.app/auth/?token=${token}`);
   }
 );
 
